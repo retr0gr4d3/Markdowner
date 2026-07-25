@@ -1,14 +1,16 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
 using Avalonia.Controls.Primitives;
+using Avalonia.Headless.XUnit;
 using Markdowner.Rendering;
 using Xunit;
 
 namespace Markdowner.Tests;
 
 /// <summary>
-/// The renderers only *build* control trees — they never measure or draw — so
-/// they can be asserted on directly without standing up an Avalonia app.
+/// The renderers only *build* control trees — they never measure or draw — but
+/// constructing a control is itself dispatcher-affine, so these run on the
+/// headless UI thread rather than on an xUnit worker.
 /// </summary>
 public class RendererTests
 {
@@ -53,7 +55,7 @@ public class RendererTests
 
     // ---------------------------------------------------------- code blocks
 
-    [Fact]
+    [AvaloniaFact]
     public void Discord_FencedCode_RendersItsBody()
     {
         // Regression: the code text was being laid out to zero size and vanishing.
@@ -61,7 +63,7 @@ public class RendererTests
         Assert.Contains("console.log(1);", TextOf(rendered));
     }
 
-    [Fact]
+    [AvaloniaFact]
     public void GitHub_FencedCode_RendersBodyAndLanguageLabel()
     {
         var text = TextOf(RenderGitHub("```csharp\nvar x = 1;\n```"));
@@ -70,7 +72,7 @@ public class RendererTests
         Assert.Contains("csharp", text);
     }
 
-    [Fact]
+    [AvaloniaFact]
     public void GitHub_MermaidFence_IsCalledOut()
     {
         Assert.Contains("Mermaid", TextOf(RenderGitHub("```mermaid\ngraph TD;\n```")));
@@ -78,7 +80,7 @@ public class RendererTests
 
     // ----------------------------------------------------------------- HTML
 
-    [Fact]
+    [AvaloniaFact]
     public void GitHub_Details_BecomesAnExpander()
     {
         var rendered = RenderGitHub("<details>\n<summary>Click to expand</summary>\n\nBody text.\n\n</details>");
@@ -87,20 +89,20 @@ public class RendererTests
         Assert.Contains("Click to expand", TextOf(expander));
     }
 
-    [Fact]
+    [AvaloniaFact]
     public void GitHub_DisallowedTag_IsReportedAsStripped()
     {
         // The preview must say what github.com would remove, not render it.
         Assert.Contains("removed by GitHub", TextOf(RenderGitHub("<script>alert(1)</script>")));
     }
 
-    [Fact]
+    [AvaloniaFact]
     public void GitHub_AllowedInlineHtml_KeepsItsText()
     {
         Assert.Contains("Ctrl", TextOf(RenderGitHub("Press <kbd>Ctrl</kbd> now.")));
     }
 
-    [Fact]
+    [AvaloniaFact]
     public void GitHub_HtmlTable_BuildsCells()
     {
         var rendered = RenderGitHub("<table><tr><th>A</th><td>B</td></tr></table>");
@@ -112,7 +114,7 @@ public class RendererTests
 
     // --------------------------------------------------------------- blocks
 
-    [Fact]
+    [AvaloniaFact]
     public void GitHub_PipeTable_BuildsAGrid()
     {
         var rendered = RenderGitHub("| A | B |\n| --- | --- |\n| 1 | 2 |");
@@ -122,7 +124,7 @@ public class RendererTests
         Assert.Equal(2, grid.ColumnDefinitions.Count);
     }
 
-    [Fact]
+    [AvaloniaFact]
     public void GitHub_TaskList_PutsTheCheckboxInTheMarkerGutter()
     {
         var text = TextOf(RenderGitHub("- [x] done\n- [ ] todo"));
@@ -131,19 +133,19 @@ public class RendererTests
         Assert.Contains("☐", text);
     }
 
-    [Fact]
+    [AvaloniaFact]
     public void GitHub_Alert_ShowsItsKind()
     {
         Assert.Contains("Warning", TextOf(RenderGitHub("> [!WARNING]\n> Careful.")));
     }
 
-    [Fact]
+    [AvaloniaFact]
     public void GitHub_Footnote_RendersTheSection()
     {
         Assert.Contains("Footnotes", TextOf(RenderGitHub("Text.[^1]\n\n[^1]: The note.")));
     }
 
-    [Fact]
+    [AvaloniaFact]
     public void GitHub_Link_IsRecordedAsAClickableRange()
     {
         var rendered = RenderGitHub("[label](https://example.com)");
@@ -155,7 +157,7 @@ public class RendererTests
 
     // -------------------------------------------------------------- Discord
 
-    [Fact]
+    [AvaloniaFact]
     public void Discord_Spoiler_IsHiddenUntilRevealed()
     {
         var rendered = RenderDiscord("a ||secret|| b");
@@ -166,25 +168,25 @@ public class RendererTests
         Assert.True(spoiler.IsRevealed);
     }
 
-    [Fact]
+    [AvaloniaFact]
     public void Discord_Mention_RendersAsAChip()
     {
         Assert.Contains("@user", TextOf(RenderDiscord("hi <@123456789012345678>")));
     }
 
-    [Fact]
+    [AvaloniaFact]
     public void Discord_Shortcode_BecomesAnEmoji()
     {
         Assert.Contains("🎉", TextOf(RenderDiscord(":tada:")));
     }
 
-    [Fact]
+    [AvaloniaFact]
     public void Discord_Subtext_Renders()
     {
         Assert.Contains("small print", TextOf(RenderDiscord("-# small print")));
     }
 
-    [Fact]
+    [AvaloniaFact]
     public void BothRenderers_HandleTheSharedSampleDocument()
     {
         // The starter document is deliberately one file covering both dialects,
@@ -193,7 +195,7 @@ public class RendererTests
         Assert.NotNull(RenderDiscord(Models.SampleDocuments.Default));
     }
 
-    [Theory]
+    [AvaloniaTheory]
     [InlineData(Models.MarkdownFlavor.GitHub)]
     [InlineData(Models.MarkdownFlavor.Discord)]
     public void EveryFormattingHelpExample_Renders(Models.MarkdownFlavor flavor)
@@ -213,7 +215,7 @@ public class RendererTests
         }
     }
 
-    [Theory]
+    [AvaloniaTheory]
     [InlineData("")]
     [InlineData("   ")]
     [InlineData("```unterminated")]
