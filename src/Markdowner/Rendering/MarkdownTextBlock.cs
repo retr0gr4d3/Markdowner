@@ -36,6 +36,23 @@ public sealed class MarkdownTextBlock : SelectableTextBlock
     private static readonly Cursor HandCursor = new(StandardCursorType.Hand);
     private static readonly Cursor IBeamCursor = new(StandardCursorType.Ibeam);
 
+    public MarkdownTextBlock()
+    {
+        // Avalonia skips controls with a null Background during hit testing, and
+        // style selectors match the exact type, so this subclass never picks up
+        // the theme's SelectableTextBlock background. Without this, pointer
+        // events land on the parent panel and links and spoilers are dead.
+        Background = Brushes.Transparent;
+    }
+
+    /// <summary>How far the pointer may travel between press and release and still count as a click.</summary>
+    private const double ClickSlop = 4;
+
+    /// <summary>Rounding tolerance when confirming a pointer landed on a glyph.</summary>
+    private const double HitSlop = 1;
+
+    private Point? _pressedAt;
+
     public IReadOnlyList<LinkSpan> Links { get; init; } = [];
     public IReadOnlyList<SpoilerSpan> Spoilers { get; init; } = [];
 
@@ -52,15 +69,30 @@ public sealed class MarkdownTextBlock : SelectableTextBlock
         Cursor = interactive ? HandCursor : IBeamCursor;
     }
 
+    protected override void OnPointerPressed(PointerPressedEventArgs e)
+    {
+        _pressedAt = e.GetPosition(this);
+        base.OnPointerPressed(e);
+    }
+
     protected override void OnPointerReleased(PointerReleasedEventArgs e)
     {
-        // Only treat this as a click when the user wasn't dragging out a selection.
-        var wasSelecting = SelectionStart != SelectionEnd;
+        var pressedAt = _pressedAt;
+        _pressedAt = null;
 
         base.OnPointerReleased(e);
 
-        if (wasSelecting || e.InitialPressMouseButton != MouseButton.Left) return;
-        if (HitTest(e.GetPosition(this)) is not { } position) return;
+        if (e.InitialPressMouseButton != MouseButton.Left) return;
+
+        var releasedAt = e.GetPosition(this);
+
+        // A click is a press and release in roughly the same place. Comparing
+        // positions is far more reliable than inspecting the selection, which a
+        // one-pixel drift is enough to populate.
+        if (pressedAt is null) return;
+        if (Distance(pressedAt.Value, releasedAt) > ClickSlop) return;
+
+        if (HitTest(releasedAt) is not { } position) return;
 
         if (SpoilerAt(position) is { IsRevealed: false } spoiler)
         {
@@ -94,12 +126,40 @@ public sealed class MarkdownTextBlock : SelectableTextBlock
         return null;
     }
 
+    private static double Distance(Point a, Point b)
+    {
+        var dx = a.X - b.X;
+        var dy = a.Y - b.Y;
+        return Math.Sqrt(dx * dx + dy * dy);
+    }
+
+    /// <summary>
+    /// Maps a pointer position to a character index, or null if the point isn't
+    /// over a glyph.
+    /// <para>
+    /// Deliberately does not trust <c>TextHitTestResult.IsInside</c>: Avalonia
+    /// reports it as false for every line after the first, which silently killed
+    /// clicks on any spoiler or link below line one. The returned
+    /// <c>TextPosition</c> is correct, so the hit is confirmed against that
+    /// character's own glyph rectangle instead.
+    /// </para>
+    /// </summary>
     private int? HitTest(Point point)
     {
-        var textOrigin = point - new Point(Padding.Left, Padding.Top);
-        if (textOrigin.X < 0 || textOrigin.Y < 0) return null;
+        var origin = point - new Point(Padding.Left, Padding.Top);
+        if (origin.X < 0 || origin.Y < 0) return null;
 
-        var hit = TextLayout.HitTestPoint(textOrigin);
-        return hit.IsInside ? hit.TextPosition : null;
+        var layout = TextLayout;
+        if (origin.Y > layout.Height) return null;
+
+        var position = layout.HitTestPoint(origin).TextPosition;
+        var glyph = layout.HitTestTextPosition(position);
+
+        // Rejects clicks in the empty space past the end of a line, where the
+        // hit test still reports the nearest character.
+        if (origin.X < glyph.X - HitSlop || origin.X > glyph.Right + HitSlop) return null;
+        if (origin.Y < glyph.Y - HitSlop || origin.Y > glyph.Bottom + HitSlop) return null;
+
+        return position;
     }
 }

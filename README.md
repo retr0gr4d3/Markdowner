@@ -81,8 +81,13 @@ dotnet test
 
 The suite covers the hand-written Discord parser, the HTML subset parser and
 GitHub's sanitizer allow-list, and asserts on the control trees the renderers
-build — the renderers only construct visuals, so they can be tested without
+build — the renderers only construct visuals, so most of it runs without
 standing up a window.
+
+Interaction that depends on real text layout — clicking a spoiler to reveal it,
+resolving a link — is covered by headless UI tests that lay out a window and
+send genuine pointer events, since those paths hit-test the laid-out glyphs and
+cannot be exercised from the control tree alone.
 
 ## How it fits together
 
