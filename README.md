@@ -41,26 +41,28 @@ dotnet run --project src/Markdowner        # macOS, Windows, Linux
 
 | Task | macOS / Linux | Windows |
 | :--- | :--- | :--- |
-| Build and test | `./build.sh` | `.\build.ps1` |
-| Package a release | `./build.sh --publish` | `.\build.ps1 -Publish` |
+| Build, test, package | `./build.sh` | `.\build.ps1` |
+| Build and test only | `./build.sh --no-package` | `.\build.ps1 -NoPackage` |
 | Reset the repo | `./clean.sh` | `.\clean.ps1` |
 
-Both build scripts restore, build in Release and run the tests. `--publish`
-(`-Publish`) additionally produces a **self-contained, single-file** app —
-no .NET runtime needed on the target machine — and packages it as:
+A plain `./build.sh` restores, builds in Release, runs the tests, and packages a
+**self-contained, single-file** app — no .NET runtime needed on the target
+machine — leaving one archive here:
 
 ```
 artifacts/Markdowner-<version>-<runtime>.zip
 ```
 
-The staging tree is deleted once the archive is written, so `artifacts/` only
-ever holds finished packages. Use `--runtime` / `-Runtime` to cross-target
-another RID, and `--version` / `-Version` to override the version taken from
-`Directory.Build.props`.
+The path is printed at the end of the run. The staging tree is deleted once the
+archive is written, so `artifacts/` only ever holds finished packages.
+
+Use `--runtime` / `-Runtime` to cross-target another RID, `--version` /
+`-Version` to override the version from `Directory.Build.props`, and
+`--no-package` / `-NoPackage` for a fast build-and-test inner loop.
 
 ```bash
-./build.sh --publish --runtime linux-x64
-./build.sh --publish --runtime win-x64 --no-test
+./build.sh --runtime linux-x64
+./build.sh --runtime win-x64 --no-test
 ```
 
 ### Cleaning

@@ -2,16 +2,16 @@
 #
 # Build script for macOS and Linux.
 #
-#   ./build.sh                          restore, build (Release) and run the tests
-#   ./build.sh --publish                also package a self-contained zip
-#   ./build.sh --publish -r linux-x64   cross-target another runtime
+#   ./build.sh                      build, test, and package artifacts/<name>.zip
+#   ./build.sh -r linux-x64         cross-target another runtime
+#   ./build.sh --no-package         just build and test (fast inner loop)
 #   ./build.sh --no-test -c Debug
 #
 # Options:
 #   -c, --configuration <name>   Debug or Release (default: Release)
 #   -r, --runtime <rid>          e.g. osx-arm64, linux-x64, win-x64 (default: this host)
 #   -v, --version <version>      overrides the version in Directory.Build.props
-#       --publish                publish and zip into artifacts/
+#       --no-package             skip publishing and zipping
 #       --no-test                skip the test run
 #
 set -euo pipefail
@@ -20,17 +20,18 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIGURATION="Release"
 RUNTIME=""
 VERSION=""
-PUBLISH=0
+DO_PACKAGE=1
 RUN_TESTS=1
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    -c|--configuration) CONFIGURATION="$2"; shift 2 ;;
-    -r|--runtime)       RUNTIME="$2";       shift 2 ;;
-    -v|--version)       VERSION="$2";       shift 2 ;;
-    --publish)          PUBLISH=1;          shift ;;
-    --no-test)          RUN_TESTS=0;        shift ;;
-    -h|--help)          sed -n '3,18p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    -c|--configuration)      CONFIGURATION="$2"; shift 2 ;;
+    -r|--runtime)            RUNTIME="$2";       shift 2 ;;
+    -v|--version)            VERSION="$2";       shift 2 ;;
+    --no-package|--no-zip)   DO_PACKAGE=0;          shift ;;
+    --no-test)               RUN_TESTS=0;        shift ;;
+    --publish|--package)     DO_PACKAGE=1;          shift ;;  # packaging is the default; accepted for habit
+    -h|--help)               sed -n '3,18p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "Unknown option: $1" >&2; exit 1 ;;
   esac
 done
@@ -70,7 +71,10 @@ if [[ "$RUN_TESTS" -eq 1 ]]; then
   dotnet test "$ROOT/Markdowner.sln" -c "$CONFIGURATION" --no-build
 fi
 
-[[ "$PUBLISH" -eq 1 ]] || exit 0
+if [[ "$DO_PACKAGE" -eq 0 ]]; then
+  echo "==> Skipping packaging (--no-package)"
+  exit 0
+fi
 
 STAGING="$ROOT/artifacts/staging/$RUNTIME"
 PACKAGE="$ROOT/artifacts/Markdowner-$VERSION-$RUNTIME.zip"
@@ -110,4 +114,7 @@ fi
 # The staging tree has served its purpose; leave only the archive behind.
 rm -rf "$ROOT/artifacts/staging"
 
-echo "==> Done: $PACKAGE ($(du -h "$PACKAGE" | cut -f1 | tr -d ' '))"
+echo
+echo "  Package: $PACKAGE"
+echo "  Size:    $(du -h "$PACKAGE" | cut -f1 | tr -d ' ')"
+echo

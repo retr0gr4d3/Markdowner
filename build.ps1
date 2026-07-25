@@ -4,22 +4,24 @@
 
 .EXAMPLE
     .\build.ps1
-    Restore, build in Release and run the tests.
+    Restore, build, test, and package artifacts\Markdowner-<version>-<rid>.zip.
 
 .EXAMPLE
-    .\build.ps1 -Publish
-    Also publish a self-contained app and package it as artifacts\Markdowner-<version>-<rid>.zip.
+    .\build.ps1 -NoPackage
+    Just build and test - the fast inner loop.
 
 .EXAMPLE
-    .\build.ps1 -Publish -Runtime win-arm64 -NoTest
+    .\build.ps1 -Runtime win-arm64 -NoTest
 #>
 [CmdletBinding()]
 param(
     [string] $Configuration = 'Release',
     [string] $Runtime,
     [string] $Version,
-    [switch] $Publish,
-    [switch] $NoTest
+    [switch] $NoPackage,
+    [switch] $NoTest,
+    # Packaging is the default; accepted so existing habits keep working.
+    [switch] $Publish
 )
 
 $ErrorActionPreference = 'Stop'
@@ -63,7 +65,10 @@ if (-not $NoTest) {
     if ($LASTEXITCODE -ne 0) { throw 'tests failed' }
 }
 
-if (-not $Publish) { return }
+if ($NoPackage) {
+    Write-Host '==> Skipping packaging (-NoPackage)'
+    return
+}
 
 $staging = Join-Path $root "artifacts/staging/$Runtime"
 $package = Join-Path $root "artifacts/Markdowner-$Version-$Runtime.zip"
@@ -95,4 +100,7 @@ Compress-Archive -Path (Join-Path $staging '*') -DestinationPath $package -Compr
 Remove-Item (Join-Path $root 'artifacts/staging') -Recurse -Force
 
 $size = '{0:N1} MB' -f ((Get-Item $package).Length / 1MB)
-Write-Host "==> Done: $package ($size)"
+Write-Host ''
+Write-Host "  Package: $package"
+Write-Host "  Size:    $size"
+Write-Host ''
