@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SyntaxDefinition name="MarkdownGitHub" extensions=".md"
+                  xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
+
+  <Color name="Heading"    foreground="#4FC3F7" fontWeight="bold" />
+  <Color name="Alert"      foreground="#D19A66" fontWeight="bold" />
+  <Color name="Quote"      foreground="#8FBC8F" fontStyle="italic" />
+  <Color name="Marker"     foreground="#C678DD" />
+  <Color name="Bold"       foreground="#E6C07B" fontWeight="bold" />
+  <Color name="Italic"     foreground="#E6C07B" fontStyle="italic" />
+  <Color name="Strike"     foreground="#7F848E" />
+  <Color name="InlineCode" foreground="#E5C07B" />
+  <Color name="CodeFence"  foreground="#98C379" />
+  <Color name="Link"       foreground="#61AFEF" />
+  <Color name="Autolink"   foreground="#56B6C2" />
+  <Color name="HtmlTag"    foreground="#4FC1FF" />
+  <Color name="Entity"     foreground="#56B6C2" />
+  <Color name="Comment"    foreground="#5C6370" fontStyle="italic" />
+  <Color name="Pipe"       foreground="#7F848E" />
+  <Color name="Footnote"   foreground="#C678DD" />
+  <Color name="Math"       foreground="#56B6C2" />
+
+  <RuleSet ignoreCase="false">
+
+    <!-- Fenced code, including the language token, spans lines. -->
+    <Span color="CodeFence" multiline="true">
+      <Begin>^[ \t]*```</Begin>
+      <End>^[ \t]*```[ \t]*$</End>
+    </Span>
+
+    <Span color="Comment" multiline="true">
+      <Begin>&lt;!--</Begin>
+      <End>--&gt;</End>
+    </Span>
+
+    <Rule color="Alert">^[ \t]*&gt;[ \t]*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\].*$</Rule>
+    <Rule color="Heading">^\#{1,6}[ \t].*$</Rule>
+    <Rule color="Quote">^[ \t]*&gt;.*$</Rule>
+
+    <!-- Thematic break -->
+    <Rule color="Marker">^[ \t]*(-[ \t]*){3,}$</Rule>
+    <Rule color="Marker">^[ \t]*(\*[ \t]*){3,}$</Rule>
+
+    <!-- List and task markers -->
+    <Rule color="Marker">^[ \t]*([-*+]|\d+[.)])[ \t]+(\[[ xX]\][ \t]+)?</Rule>
+
+    <Rule color="InlineCode">`[^`\n]+`</Rule>
+
+    <Rule color="Footnote">\[\^[^\]\n]+\]</Rule>
+    <Rule color="Link">!?\[[^\]\n]*\]\([^)\n]*\)</Rule>
+    <Rule color="Autolink">&lt;(https?|mailto):[^&gt;\s]+&gt;</Rule>
+    <Rule color="Autolink">\bhttps?://[^\s&lt;&gt;)\]]+</Rule>
+
+    <Rule color="Bold">\*\*[^*\n]+\*\*</Rule>
+    <Rule color="Bold">(?&lt;![\w_])__[^_\n]+__(?![\w_])</Rule>
+    <Rule color="Italic">(?&lt;![\w*])\*[^*\n]+\*(?![\w*])</Rule>
+    <Rule color="Italic">(?&lt;![\w_])_[^_\n]+_(?![\w_])</Rule>
+    <Rule color="Strike">~~[^~\n]+~~</Rule>
+
+    <Rule color="Math">\$\$?[^$\n]+\$\$?</Rule>
+
+    <Rule color="HtmlTag">&lt;/?[A-Za-z][A-Za-z0-9-]*([ \t][^&gt;]*)?/?&gt;</Rule>
+    <Rule color="Entity">&amp;[a-zA-Z]{2,10};</Rule>
+    <Rule color="Entity">&amp;\#\d{1,6};</Rule>
+
+    <Rule color="Pipe">\|</Rule>
+
+  </RuleSet>
+</SyntaxDefinition>

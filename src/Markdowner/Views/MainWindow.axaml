@@ -1,0 +1,230 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ae="using:AvaloniaEdit"
+        x:Class="Markdowner.Views.MainWindow"
+        x:CompileBindings="False"
+        Title="{Binding WindowTitle}"
+        Width="1440" Height="920"
+        MinWidth="720" MinHeight="460"
+        Background="{StaticResource ChromeLow}">
+
+  <Window.Styles>
+    <Style Selector="TextBlock.overlimit">
+      <Setter Property="Foreground" Value="{StaticResource StudioDanger}" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+  </Window.Styles>
+
+  <DockPanel>
+
+    <!-- ========================= Menu bar ========================= -->
+    <Menu DockPanel.Dock="Top">
+      <MenuItem Header="_File">
+        <MenuItem Header="_New" InputGesture="Ctrl+N" Click="OnNew" />
+        <MenuItem Header="_Open..." InputGesture="Ctrl+O" Click="OnOpen" />
+        <Separator />
+        <MenuItem Header="_Save" InputGesture="Ctrl+S" Click="OnSave" />
+        <MenuItem Header="Save _As..." InputGesture="Ctrl+Shift+S" Click="OnSaveAs" />
+        <Separator />
+        <MenuItem Header="E_xit" Click="OnExit" />
+      </MenuItem>
+
+      <MenuItem Header="_Edit">
+        <MenuItem Header="_Undo" InputGesture="Ctrl+Z" Click="OnUndo" />
+        <MenuItem Header="_Redo" InputGesture="Ctrl+Y" Click="OnRedo" />
+        <Separator />
+        <MenuItem Header="Cu_t" InputGesture="Ctrl+X" Click="OnCut" />
+        <MenuItem Header="_Copy" InputGesture="Ctrl+C" Click="OnCopy" />
+        <MenuItem Header="_Paste" InputGesture="Ctrl+V" Click="OnPaste" />
+        <Separator />
+        <MenuItem Header="Select _All" InputGesture="Ctrl+A" Click="OnSelectAll" />
+      </MenuItem>
+
+      <MenuItem Header="_View">
+        <MenuItem Header="_Source" Click="OnViewSource" />
+        <MenuItem Header="S_plit" Click="OnViewSplit" />
+        <MenuItem Header="_Preview" Click="OnViewPreview" />
+        <Separator />
+        <MenuItem Header="_Word wrap" ToggleType="CheckBox" IsChecked="{Binding WordWrap}" />
+        <MenuItem Header="_Line numbers" ToggleType="CheckBox" IsChecked="{Binding ShowLineNumbers}" />
+      </MenuItem>
+
+      <MenuItem Header="_Renderer">
+        <MenuItem Header="_GitHub Flavored Markdown" Click="OnRendererGitHub" />
+        <MenuItem Header="_Discord message markdown" Click="OnRendererDiscord" />
+      </MenuItem>
+
+      <MenuItem Header="_Help">
+        <MenuItem Header="_Formatting Help" InputGesture="F1" Click="OnFormattingHelp" />
+        <Separator />
+        <MenuItem Header="GitHub Markdown reference" Click="OnHelpGitHub" />
+        <MenuItem Header="Discord Markdown reference" Click="OnHelpDiscord" />
+      </MenuItem>
+    </Menu>
+
+    <!-- ====================== Document toolbar ====================== -->
+    <Border Classes="chrome" DockPanel.Dock="Top" Padding="6,4">
+      <DockPanel>
+
+        <StackPanel Orientation="Horizontal" DockPanel.Dock="Left">
+          <Button Classes="tool" Content="New" ToolTip.Tip="New document (Ctrl+N)" Click="OnNew" />
+          <Button Classes="tool" Content="Open" ToolTip.Tip="Open a Markdown file (Ctrl+O)" Click="OnOpen" />
+          <Button Classes="tool" Content="Save" ToolTip.Tip="Save (Ctrl+S)" Click="OnSave" />
+          <Border Classes="sep" />
+          <Button Classes="tool glyph" Content="↶" ToolTip.Tip="Undo (Ctrl+Z)" Click="OnUndo" />
+          <Button Classes="tool glyph" Content="↷" ToolTip.Tip="Redo (Ctrl+Y)" Click="OnRedo" />
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal" DockPanel.Dock="Right" Spacing="6">
+          <Button Classes="tool" Content="Formatting Help" Click="OnFormattingHelp"
+                  ToolTip.Tip="Every format the current renderer supports, with live examples (F1)" />
+
+          <Border Classes="sep" />
+
+          <TextBlock Classes="dim" Text="Renderer" VerticalAlignment="Center" />
+          <ComboBox Classes="compact" Width="116"
+                    SelectedIndex="{Binding FlavorIndex}"
+                    ToolTip.Tip="Which platform's Markdown dialect to author and preview">
+            <ComboBoxItem>GitHub</ComboBoxItem>
+            <ComboBoxItem>Discord</ComboBoxItem>
+          </ComboBox>
+
+          <Border Classes="sep" />
+
+          <StackPanel Orientation="Horizontal">
+            <ToggleButton Classes="viewmode" Content="Source" IsChecked="{Binding IsSourceMode}"
+                          ToolTip.Tip="Editor only" />
+            <ToggleButton Classes="viewmode" Content="Split" IsChecked="{Binding IsSplitMode}"
+                          ToolTip.Tip="Editor and preview, side by side" />
+            <ToggleButton Classes="viewmode" Content="Preview" IsChecked="{Binding IsPreviewMode}"
+                          ToolTip.Tip="Preview only" />
+          </StackPanel>
+        </StackPanel>
+
+        <Panel />
+      </DockPanel>
+    </Border>
+
+    <!-- ========================= Insert bar ========================= -->
+    <Border Classes="insertbar" DockPanel.Dock="Top">
+      <DockPanel>
+
+        <ListBox Classes="categories"
+                 DockPanel.Dock="Top"
+                 ItemsSource="{Binding Categories}"
+                 SelectedItem="{Binding SelectedCategory}">
+          <ListBox.ItemTemplate>
+            <DataTemplate>
+              <TextBlock Text="{Binding Name}" />
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+
+        <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                      VerticalScrollBarVisibility="Disabled"
+                      Background="{StaticResource ChromeLow}">
+          <ItemsControl ItemsSource="{Binding SelectedCategory.Groups}" Margin="4,4">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <WrapPanel Orientation="Horizontal" />
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <StackPanel Orientation="Horizontal" Margin="0,1">
+                  <TextBlock Classes="grouplabel" Text="{Binding Name}" />
+
+                  <ItemsControl ItemsSource="{Binding Snippets}">
+                    <ItemsControl.ItemsPanel>
+                      <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" />
+                      </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate>
+                        <Button Classes="tool"
+                                Classes.mono="{Binding Mono}"
+                                Content="{Binding Label}"
+                                ToolTip.Tip="{Binding Tooltip}"
+                                Command="{Binding $parent[Window].DataContext.ApplySnippetCommand}"
+                                CommandParameter="{Binding}" />
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+
+                  <Border Classes="sep" />
+                </StackPanel>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </ScrollViewer>
+
+      </DockPanel>
+    </Border>
+
+    <!-- ========================== Status bar ========================== -->
+    <Border Classes="statusbar" DockPanel.Dock="Bottom">
+      <DockPanel>
+        <StackPanel Orientation="Horizontal" Spacing="14" DockPanel.Dock="Left">
+          <TextBlock Classes="dim" Text="{Binding CaretPositionText}" />
+          <TextBlock Classes="dim" Text="{Binding WordCountText}" />
+          <TextBlock Classes="dim"
+                     Classes.overlimit="{Binding IsOverCharacterLimit}"
+                     Text="{Binding CharacterCountText}"
+                     ToolTip.Tip="Discord rejects messages longer than 2000 characters" />
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal" Spacing="14" DockPanel.Dock="Right">
+          <TextBlock Classes="dim" Text="{Binding FlavorSummary}" />
+          <TextBlock Classes="dim" Text="{Binding StatusMessage}" />
+        </StackPanel>
+
+        <Panel />
+      </DockPanel>
+    </Border>
+
+    <!-- ===================== Source / Preview split ===================== -->
+    <Grid x:Name="SplitGrid" ColumnDefinitions="*,4,*">
+
+      <DockPanel x:Name="EditorPane" Grid.Column="0">
+        <Border Classes="panelheader" DockPanel.Dock="Top">
+          <DockPanel>
+            <TextBlock Text="Source" FontWeight="SemiBold" FontSize="11.5" DockPanel.Dock="Left" />
+            <TextBlock Classes="dim" Text="{Binding DocumentName}" HorizontalAlignment="Right" />
+          </DockPanel>
+        </Border>
+
+        <ae:TextEditor x:Name="Editor"
+                       Document="{Binding Document}"
+                       ShowLineNumbers="{Binding ShowLineNumbers}"
+                       WordWrap="{Binding WordWrap}"
+                       FontFamily="Cascadia Mono,SF Mono,Menlo,Consolas,DejaVu Sans Mono,monospace"
+                       FontSize="13.5"
+                       Background="#1E2024"
+                       Foreground="#D6DAE1"
+                       Padding="10,8" />
+      </DockPanel>
+
+      <GridSplitter x:Name="Splitter" Grid.Column="1" ResizeDirection="Columns" />
+
+      <DockPanel x:Name="PreviewPane" Grid.Column="2">
+        <Border Classes="panelheader" DockPanel.Dock="Top">
+          <DockPanel>
+            <TextBlock Text="Preview" FontWeight="SemiBold" FontSize="11.5" DockPanel.Dock="Left" />
+            <TextBlock Classes="dim" Text="{Binding Flavor}" HorizontalAlignment="Right" />
+          </DockPanel>
+        </Border>
+
+        <ScrollViewer x:Name="PreviewScroll"
+                      HorizontalScrollBarVisibility="Disabled"
+                      VerticalScrollBarVisibility="Auto">
+          <Border x:Name="PreviewHost" />
+        </ScrollViewer>
+      </DockPanel>
+
+    </Grid>
+
+  </DockPanel>
+</Window>

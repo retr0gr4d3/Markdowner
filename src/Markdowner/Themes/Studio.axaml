@@ -1,0 +1,190 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!--
+    "Studio" chrome: dense, panelled, toolbar-heavy shell in the spirit of
+    Dreamweaver / Phoenix. Deliberately flat and grey so the two preview
+    skins (GitHub / Discord) are the only saturated things on screen.
+  -->
+  <Styles.Resources>
+    <SolidColorBrush x:Key="ChromeLow" Color="#232629" />
+    <SolidColorBrush x:Key="ChromeMid" Color="#2B2E33" />
+    <SolidColorBrush x:Key="ChromeHigh" Color="#33373D" />
+    <SolidColorBrush x:Key="ChromeRaised" Color="#3C4149" />
+    <SolidColorBrush x:Key="ChromeBorder" Color="#141517" />
+    <SolidColorBrush x:Key="ChromeEdge" Color="#454A52" />
+    <SolidColorBrush x:Key="StudioText" Color="#D6DAE1" />
+    <SolidColorBrush x:Key="StudioTextDim" Color="#8F969F" />
+    <SolidColorBrush x:Key="StudioAccent" Color="#4C8EDA" />
+    <SolidColorBrush x:Key="StudioWarn" Color="#E0A33E" />
+    <SolidColorBrush x:Key="StudioDanger" Color="#E5534B" />
+
+    <FontFamily x:Key="StudioMono">Cascadia Mono,Menlo,Consolas,DejaVu Sans Mono,monospace</FontFamily>
+  </Styles.Resources>
+
+  <!-- ============================ Window ============================ -->
+  <Style Selector="Window">
+    <Setter Property="Background" Value="{StaticResource ChromeLow}" />
+    <Setter Property="FontSize" Value="13" />
+    <Setter Property="Foreground" Value="{StaticResource StudioText}" />
+  </Style>
+
+  <!-- ============================ Menu ============================ -->
+  <Style Selector="Menu">
+    <Setter Property="Background" Value="{StaticResource ChromeMid}" />
+    <Setter Property="Padding" Value="4,1" />
+  </Style>
+  <Style Selector="Menu > MenuItem">
+    <Setter Property="Padding" Value="9,4" />
+    <Setter Property="FontSize" Value="12.5" />
+  </Style>
+
+  <!-- ======================= Toolbar surfaces ======================= -->
+  <Style Selector="Border.chrome">
+    <Setter Property="Background" Value="{StaticResource ChromeMid}" />
+    <Setter Property="BorderBrush" Value="{StaticResource ChromeBorder}" />
+    <Setter Property="BorderThickness" Value="0,0,0,1" />
+  </Style>
+
+  <Style Selector="Border.insertbar">
+    <Setter Property="Background" Value="{StaticResource ChromeHigh}" />
+    <Setter Property="BorderBrush" Value="{StaticResource ChromeBorder}" />
+    <Setter Property="BorderThickness" Value="0,0,0,1" />
+  </Style>
+
+  <Style Selector="Border.statusbar">
+    <Setter Property="Background" Value="{StaticResource ChromeMid}" />
+    <Setter Property="BorderBrush" Value="{StaticResource ChromeBorder}" />
+    <Setter Property="BorderThickness" Value="0,1,0,0" />
+    <Setter Property="Padding" Value="8,3" />
+  </Style>
+
+  <Style Selector="Border.panelheader">
+    <Setter Property="Background" Value="{StaticResource ChromeHigh}" />
+    <Setter Property="BorderBrush" Value="{StaticResource ChromeBorder}" />
+    <Setter Property="BorderThickness" Value="0,0,0,1" />
+    <Setter Property="Padding" Value="8,4" />
+  </Style>
+
+  <!-- Thin vertical rule used to cluster toolbar buttons into groups. -->
+  <Style Selector="Border.sep">
+    <Setter Property="Width" Value="1" />
+    <Setter Property="Margin" Value="5,3" />
+    <Setter Property="Background" Value="{StaticResource ChromeBorder}" />
+  </Style>
+
+  <!-- ======================= Toolbar buttons ======================= -->
+  <Style Selector="Button.tool">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="3" />
+    <Setter Property="Padding" Value="7,3" />
+    <Setter Property="Margin" Value="1,0" />
+    <Setter Property="MinWidth" Value="0" />
+    <Setter Property="MinHeight" Value="24" />
+    <Setter Property="FontSize" Value="12.5" />
+    <Setter Property="Foreground" Value="{StaticResource StudioText}" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Button.tool:pointerover /template/ ContentPresenter">
+    <Setter Property="Background" Value="{StaticResource ChromeRaised}" />
+    <Setter Property="BorderBrush" Value="{StaticResource ChromeEdge}" />
+  </Style>
+  <Style Selector="Button.tool:pressed /template/ ContentPresenter">
+    <Setter Property="Background" Value="{StaticResource StudioAccent}" />
+  </Style>
+  <Style Selector="Button.tool:disabled">
+    <Setter Property="Opacity" Value="0.4" />
+  </Style>
+
+  <!-- Monospaced variant used for the raw HTML tag palette. -->
+  <Style Selector="Button.tool.mono">
+    <Setter Property="FontFamily" Value="{StaticResource StudioMono}" />
+    <Setter Property="FontSize" Value="11.5" />
+    <Setter Property="Foreground" Value="#B9C4D2" />
+  </Style>
+
+  <Style Selector="Button.tool.glyph">
+    <Setter Property="FontSize" Value="14" />
+    <Setter Property="Padding" Value="6,1" />
+  </Style>
+
+  <!-- ==================== View-mode toggle group ==================== -->
+  <Style Selector="ToggleButton.viewmode">
+    <Setter Property="Background" Value="{StaticResource ChromeLow}" />
+    <Setter Property="BorderBrush" Value="{StaticResource ChromeBorder}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="0" />
+    <Setter Property="Padding" Value="10,3" />
+    <Setter Property="MinHeight" Value="24" />
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="Foreground" Value="{StaticResource StudioTextDim}" />
+  </Style>
+  <Style Selector="ToggleButton.viewmode:checked /template/ ContentPresenter">
+    <Setter Property="Background" Value="{StaticResource StudioAccent}" />
+    <Setter Property="TextElement.Foreground" Value="White" />
+  </Style>
+  <Style Selector="ToggleButton.viewmode:pointerover /template/ ContentPresenter">
+    <Setter Property="Background" Value="{StaticResource ChromeRaised}" />
+  </Style>
+  <Style Selector="ToggleButton.viewmode:checked:pointerover /template/ ContentPresenter">
+    <Setter Property="Background" Value="{StaticResource StudioAccent}" />
+  </Style>
+
+  <Style Selector="ComboBox.compact">
+    <Setter Property="MinHeight" Value="24" />
+    <Setter Property="Padding" Value="9,2" />
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="Background" Value="{StaticResource ChromeLow}" />
+    <Setter Property="BorderBrush" Value="{StaticResource ChromeBorder}" />
+  </Style>
+
+  <!-- ===================== Insert-bar category tabs ===================== -->
+  <Style Selector="ListBox.categories">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="ItemsPanel">
+      <ItemsPanelTemplate>
+        <StackPanel Orientation="Horizontal" />
+      </ItemsPanelTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="ListBox.categories ListBoxItem">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Padding" Value="11,4" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="Foreground" Value="{StaticResource StudioTextDim}" />
+  </Style>
+  <Style Selector="ListBox.categories ListBoxItem:selected /template/ ContentPresenter">
+    <Setter Property="Background" Value="{StaticResource ChromeLow}" />
+    <Setter Property="TextElement.Foreground" Value="{StaticResource StudioText}" />
+  </Style>
+  <Style Selector="ListBox.categories ListBoxItem:pointerover /template/ ContentPresenter">
+    <Setter Property="Background" Value="{StaticResource ChromeRaised}" />
+  </Style>
+
+  <!-- ============================ Misc ============================ -->
+  <Style Selector="TextBlock.dim">
+    <Setter Property="Foreground" Value="{StaticResource StudioTextDim}" />
+    <Setter Property="FontSize" Value="11.5" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </Style>
+
+  <Style Selector="TextBlock.grouplabel">
+    <Setter Property="Foreground" Value="#6E767F" />
+    <Setter Property="FontSize" Value="9.5" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+    <Setter Property="Margin" Value="4,0,3,0" />
+  </Style>
+
+  <Style Selector="GridSplitter">
+    <Setter Property="Background" Value="{StaticResource ChromeBorder}" />
+  </Style>
+  <Style Selector="GridSplitter:pointerover">
+    <Setter Property="Background" Value="{StaticResource StudioAccent}" />
+  </Style>
+
+</Styles>

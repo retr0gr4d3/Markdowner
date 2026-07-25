@@ -1,0 +1,14 @@
+<Project>
+
+  <PropertyGroup>
+    <!-- Also read by build.sh / build.ps1 to name the release archive. -->
+    <Version>1.0.0</Version>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+  </PropertyGroup>
+
+</Project>

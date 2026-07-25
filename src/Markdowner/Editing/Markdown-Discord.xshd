@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SyntaxDefinition name="MarkdownDiscord" extensions=".md"
+                  xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
+
+  <Color name="Heading"    foreground="#4FC3F7" fontWeight="bold" />
+  <Color name="Subtext"    foreground="#7F848E" />
+  <Color name="Quote"      foreground="#8FBC8F" fontStyle="italic" />
+  <Color name="Marker"     foreground="#C678DD" />
+  <Color name="Bold"       foreground="#E6C07B" fontWeight="bold" />
+  <Color name="Italic"     foreground="#E6C07B" fontStyle="italic" />
+  <Color name="Underline"  foreground="#E6C07B" />
+  <Color name="Strike"     foreground="#7F848E" />
+  <Color name="Spoiler"    foreground="#B57EDC" fontWeight="bold" />
+  <Color name="InlineCode" foreground="#E5C07B" />
+  <Color name="CodeFence"  foreground="#98C379" />
+  <Color name="Link"       foreground="#61AFEF" />
+  <Color name="Autolink"   foreground="#56B6C2" />
+  <Color name="Mention"    foreground="#7B87F5" fontWeight="bold" />
+  <Color name="Emoji"      foreground="#56B6C2" />
+  <Color name="Timestamp"  foreground="#D19A66" />
+
+  <RuleSet ignoreCase="false">
+
+    <Span color="CodeFence" multiline="true">
+      <Begin>^[ \t]*```</Begin>
+      <End>^[ \t]*```[ \t]*$</End>
+    </Span>
+
+    <!-- Discord stops at h3, and -# is subtext. -->
+    <Rule color="Heading">^\#{1,3}[ \t].*$</Rule>
+    <Rule color="Subtext">^-\#[ \t].*$</Rule>
+    <Rule color="Quote">^[ \t]*&gt;&gt;&gt;[ \t]?.*$</Rule>
+    <Rule color="Quote">^[ \t]*&gt;[ \t]?.*$</Rule>
+
+    <Rule color="Marker">^[ \t]*([-*]|\d+[.)])[ \t]+</Rule>
+
+    <Rule color="InlineCode">`[^`\n]+`</Rule>
+
+    <!-- Mentions, custom emoji, slash commands and timestamps. -->
+    <Rule color="Timestamp">&lt;t:-?\d+(:[tTdDfFR])?&gt;</Rule>
+    <Rule color="Mention">&lt;@[!&amp;]?\d+&gt;</Rule>
+    <Rule color="Mention">&lt;\#\d+&gt;</Rule>
+    <Rule color="Mention">&lt;/[\w -]+:\d+&gt;</Rule>
+    <Rule color="Mention">@(everyone|here)\b</Rule>
+    <Rule color="Emoji">&lt;a?:[A-Za-z0-9_]{2,32}:\d+&gt;</Rule>
+    <Rule color="Emoji">:[a-z0-9_+-]*[a-z][a-z0-9_+-]*:</Rule>
+
+    <Rule color="Link">\[[^\]\n]*\]\([^)\n]*\)</Rule>
+    <Rule color="Autolink">&lt;https?:[^&gt;\s]+&gt;</Rule>
+    <Rule color="Autolink">\bhttps?://[^\s&lt;&gt;)\]]+</Rule>
+
+    <Rule color="Spoiler">\|\|[^\n]+?\|\|</Rule>
+    <Rule color="Bold">\*\*\*[^*\n]+\*\*\*</Rule>
+    <Rule color="Bold">\*\*[^*\n]+\*\*</Rule>
+    <Rule color="Underline">__[^_\n]+__</Rule>
+    <Rule color="Italic">(?&lt;![\w*])\*[^*\n]+\*(?![\w*])</Rule>
+    <Rule color="Italic">(?&lt;![\w_])_[^_\n]+_(?![\w_])</Rule>
+    <Rule color="Strike">~~[^~\n]+~~</Rule>
+
+  </RuleSet>
+</SyntaxDefinition>
